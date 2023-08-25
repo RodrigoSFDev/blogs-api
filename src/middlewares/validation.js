@@ -11,9 +11,9 @@ function checkRequired(req, res, next) {
 }
 
 async function checkUserExistence(req, res, next) {
-  const { email } = req.body;
+  const { email, password } = req.body;
 
-  const user = await User.findOne({ where: { email } });
+  const user = await User.findOne({ where: { email, password } });
 
   if (!user) {
     return res.status(400).json({ message: 'Invalid fields' });
