@@ -25,4 +25,15 @@ async function authenticateUser(email, password) {
   return token;
 }
 
-module.exports = { authenticateUser };
+async function getAllUsers() {
+  try {
+    const users = await User.findAll({
+      attributes: ['id', 'displayName', 'email', 'image'],
+    });
+    return users;
+  } catch (error) {
+    throw new Error('Failed to fetch users');
+  }
+}
+
+module.exports = { authenticateUser, getAllUsers };

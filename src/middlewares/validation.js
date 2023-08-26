@@ -1,3 +1,7 @@
+const jwt = require('jsonwebtoken');
+
+const { JWT_SECRET } = process.env;
+
 const { User } = require('../models/index'); 
 
 function checkRequired(req, res, next) {
@@ -23,7 +27,26 @@ async function checkUserExistence(req, res, next) {
   next();
 }
 
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers.authorization;
+  const token = authHeader.split(' ')[1]; // Remove 'Bearer' prefix
+
+  if (!authHeader) {
+    return res.status(401).json({ message: 'Token not found' });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ message: 'Expired or invalid token' });
+    }
+    
+    req.user = decoded;
+    next();
+  });
+}
+
 module.exports = {
   checkRequired,
   checkUserExistence,
+  authenticateToken,
 };
