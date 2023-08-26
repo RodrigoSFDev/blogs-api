@@ -19,13 +19,6 @@ const Category = (sequelize, DataTypes) => {
       underscored: true,
     }
   );
-  category.associate = (models) => {
-    category.belongsToMany(models.BlogPost, {
-      through: models.PostCategory,
-      foreignKey: "categoryId",
-      as: "blogPosts",
-    });
-  };
   return category;
 };
 
