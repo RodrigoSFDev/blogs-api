@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 
 const { JWT_SECRET } = process.env;
 
-const { User } = require('../models/index'); 
+const { User } = require('../models'); 
 
 function checkRequired(req, res, next) {
   const { email, password } = req.body;
@@ -29,12 +29,10 @@ async function checkUserExistence(req, res, next) {
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers.authorization;
-  const token = authHeader.split(' ')[1]; // Remove 'Bearer' prefix
-
   if (!authHeader) {
     return res.status(401).json({ message: 'Token not found' });
   }
-
+  const token = authHeader.split(' ')[1];
   jwt.verify(token, JWT_SECRET, (err, decoded) => {
     if (err) {
       return res.status(401).json({ message: 'Expired or invalid token' });
@@ -45,8 +43,19 @@ function authenticateToken(req, res, next) {
   });
 }
 
+const validateRequiredFields = (req, res, next) => {
+  const { title, content, categoryIds } = req.body;
+
+  if (!title || !content || !categoryIds) {
+    return res.status(400).json({ message: 'Some required fields are missing' });
+  }
+
+  next();
+};
+
 module.exports = {
   checkRequired,
   checkUserExistence,
   authenticateToken,
+  validateRequiredFields,
 };
