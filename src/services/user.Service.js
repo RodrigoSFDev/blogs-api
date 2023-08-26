@@ -36,4 +36,15 @@ async function getAllUsers() {
   }
 }
 
-module.exports = { authenticateUser, getAllUsers };
+async function getUserById(id) {
+  try {
+    const user = await User.findByPk(id, {
+      attributes: ['id', 'displayName', 'email', 'image'],
+    });
+    return user;
+  } catch (error) {
+    throw new Error('Failed to fetch user');
+  }
+}
+
+module.exports = { authenticateUser, getAllUsers, getUserById };
