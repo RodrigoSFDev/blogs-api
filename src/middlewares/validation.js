@@ -33,14 +33,13 @@ function authenticateToken(req, res, next) {
     return res.status(401).json({ message: 'Token not found' });
   }
   const token = authHeader.split(' ')[1];
-  jwt.verify(token, JWT_SECRET, (err, decoded) => {
-    if (err) {
-      return res.status(401).json({ message: 'Expired or invalid token' });
-    }
-    
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
     next();
-  });
+  } catch (err) {
+    return res.status(401).json({ message: 'Expired or invalid token' });
+  }
 }
 
 const validateRequiredFields = (req, res, next) => {

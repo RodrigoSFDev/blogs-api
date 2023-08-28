@@ -13,13 +13,13 @@ const BlogPost = (sequelize, DataTypes) => {
         allowNull: false,
       },
       content: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING,
         allowNull: false,
       },
       userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: "user_id",
+        foreignKey: true,
       },
       published: {
         type: DataTypes.DATE,
