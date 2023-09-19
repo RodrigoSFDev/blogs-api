@@ -42,8 +42,28 @@ const getIdPosts = async (id) => {
   return post;
 };
 
+const updatePost = async (id, title, content, userId) => {
+  console.log(id, title, content, userId);
+  const post = await BlogPost.findByPk(id);
+  if (!post) {
+    return { data: { message: 'Post does not exist' } };
+  }
+  if (post.userId !== userId) {
+    return { data: { message: 'Unauthorized user' } };
+  }
+  await BlogPost.update({ title, content }, { where: { id } });
+  const newPost = await BlogPost.findByPk(id, {
+    include: [
+      { model: User, as: 'user', attributes: { exclude: ['password'] } },
+      { model: Category, as: 'categories', through: { attributes: [] } },
+    ],
+  });
+  return { data: newPost };
+};
+
 module.exports = {
   createPost,
   getAllPosts,
   getIdPosts,
+  updatePost,
 };

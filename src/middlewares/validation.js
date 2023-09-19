@@ -1,8 +1,5 @@
-const jwt = require('jsonwebtoken');
-
-const { JWT_SECRET } = process.env;
-
 const { User } = require('../models'); 
+const { getPayload } = require('../auth/authJWT');
 
 function checkRequired(req, res, next) {
   const { email, password } = req.body;
@@ -28,16 +25,17 @@ async function checkUserExistence(req, res, next) {
 }
 
 function authenticateToken(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).json({ message: 'Token not found' });
-  }
-  const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded;
+    const { authorization: token } = req.headers;
+    if (!token) {
+      return res.status(401).json({ message: 'Token not found' });
+    }
+    const [, newToken] = token.split(' ');
+    const user = getPayload(newToken);
+    req.user = user;
     next();
-  } catch (err) {
+  } catch (error) {
+    console.log(error);
     return res.status(401).json({ message: 'Expired or invalid token' });
   }
 }
@@ -52,9 +50,20 @@ const validateRequiredFields = (req, res, next) => {
   next();
 };
 
+const validateRequiredFieldsPut = (req, res, next) => {
+  const { title, content } = req.body;
+
+  if (!title || !content) {
+    return res.status(400).json({ message: 'Some required fields are missing' });
+  }
+
+  next();
+};
+
 module.exports = {
   checkRequired,
   checkUserExistence,
   authenticateToken,
   validateRequiredFields,
+  validateRequiredFieldsPut,
 };
